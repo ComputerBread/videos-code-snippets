@@ -1,0 +1,56 @@
+const std = @import("std");
+
+const Shape = struct {
+    drawFn: *const fn (ptr: *Shape) void,
+    moveFn: *const fn (ptr: *Shape, x: i32, y: i32) void,
+
+    pub fn draw(self: *Shape) void {
+        self.drawFn(self);
+    }
+
+    pub fn move(self: *Shape) void {
+        self.moveFn(self, 200, 100);
+    }
+};
+
+const Circle = struct {
+    shape: Shape,
+
+    x: i32,
+    y: i32,
+
+    // these functions need to have same signature as the function ptr
+    fn drawFn(ptr: *Shape) void {
+        // here, ptr will corresond to Circle.shape
+        // but we want to get the concrete type (Circle)
+        // so we use:
+        var parent: *Circle = @fieldParentPtr("shape", ptr);
+        parent.draw();
+    }
+
+    fn draw(self: Circle) void {
+        _ = self;
+        std.debug.print("circle \n", .{});
+    }
+
+    fn moveFn(ptr: *Shape, x: i32, y: i32) void {
+        const circle: *Circle = @fieldParentPtr("shape", ptr);
+        circle.x = x;
+        circle.y = y;
+        std.debug.print("new pos: ({d}, {d})\n", .{ circle.x, circle.y });
+    }
+};
+
+pub fn main() void {
+    var c: Circle = Circle{
+        .shape = .{
+            .drawFn = Circle.drawFn,
+            .moveFn = Circle.moveFn,
+        },
+        .x = 10,
+        .y = 20,
+    };
+    var shape = &c.shape;
+    shape.draw();
+    shape.move();
+}
