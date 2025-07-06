@@ -1,41 +1,63 @@
-pub fn singlyLinkedList(Node: type, comptime next_name: anytype) type {
-    // String-ify potential enum literal:
-    const next: []const u8 = if (@typeInfo(@TypeOf(next_name)) == .enum_literal)
-        @tagName(next_name)
-    else // If it coerces, it works:
-        next_name;
+// HOW TO COMPILE THIS:
+// 1. create new project with `zig init`
+// 2. delete src/root.zig
+// 3. `zig fetch --save https://github.com/mnemnion/zelda/archive/refs/tags/v0.1.0.tar.gz`
+// 4. replace content of build.zig with:
+// ```zig
+// const std = @import("std");
+//
+// pub fn build(b: *std.Build) void {
+//     const target = b.standardTargetOptions(.{});
+//     const optimize = b.standardOptimizeOption(.{});
+//     const exe_mod = b.createModule(.{ .root_source_file = b.path("src/main.zig"), .target = target, .optimize = optimize });
+//     const zelda = b.dependency("zelda", .{ .target = target, .optimize = optimize });
+//     const zelda_mod = zelda.module("zelda");
+//     exe_mod.addImport("zelda", zelda_mod);
+//     const exe = b.addExecutable(.{ .name = "z", .root_module = exe_mod });
+//     b.installArtifact(exe);
+//     const run_cmd = b.addRunArtifact(exe);
+//     run_cmd.step.dependOn(b.getInstallStep());
+//     if (b.args) |args| {
+//         run_cmd.addArgs(args);
+//     }
+//     const run_step = b.step("run", "Run the app");
+//     run_step.dependOn(&run_cmd.step);
+// }
+// ````
+// 5. put content of this file inside src/main.zig
+// 6. run `zig build run`
+const zelda = @import("zelda");
 
-    // verifyFieldType(Node, next);
+const T = struct {
+    data: u32,
 
-    return struct {
-        //| Node functions
+    next: ?*@This() = null,
+    pub usingnamespace zelda.singlyLinkedList(@This(), .next);
+};
 
-        pub const ThisNode = @This(); // Needed for calling declarations in SinglyLinkedList
+pub fn main() !void {
+    var one: T = .{ .data = 1 };
+    var two: T = .{ .data = 2 };
+    var thr: T = .{ .data = 3 };
+    var fou: T = .{ .data = 4 };
+    var fiv: T = .{ .data = 5 };
 
-        pub fn insertAfter(node: *Node, new_node: *Node) void {}
+    var list: T.SinglyLinkedList = .empty;
+    list.prepend(&two); // {2}
+    two.insertAfter(&fiv); // {2, 5}
+    list.prepend(&one); // {1, 2, 5}
+    two.insertAfter(&thr); // {1, 2, 3, 5}
+    thr.insertAfter(&fou); // {1, 2, 3, 4, 5}
 
-        pub fn removeNext(node: *Node) ?*Node {}
-
-        pub fn swap(node: *Node) ?*Node {}
-
-        pub fn findLast(node: *Node) *Node {}
-
-        pub fn countChildren(node: *const Node) usize {}
-
-        pub fn reverse(indirect: *?*Node) void {}
-
-        //| Singly Linked List container type
-        pub const SinglyLinkedList = struct {
-            first: ?*Node,
-
-            pub const empty: SinglyLinkedList = .{ .first = null };
-
-            pub fn init(first: ?*Node) SinglyLinkedList {}
-            pub fn prepend(list: *SinglyLinkedList, new_node: *Node) void {}
-            pub fn append(list: *SinglyLinkedList, new_node: *Node) void {}
-            pub fn remove(list: *SinglyLinkedList, node: *Node) void {}
-            pub fn popFirst(list: *SinglyLinkedList) ?*Node {}
-            pub fn len(list: SinglyLinkedList) usize {}
-        };
-    };
+    var it = list.first;
+    var nb_of_nodes: u32 = 0;
+    while (it) |node| : (it = node.next) {
+        nb_of_nodes += 1;
+        std.debug.print("node before: {d}", .{node.data});
+        node.data *= 10;
+        std.debug.print("node after: {d}\n", .{node.data});
+    }
+    std.debug.print("number of nodes: {d}\n", .{nb_of_nodes});
 }
+
+const std = @import("std");
