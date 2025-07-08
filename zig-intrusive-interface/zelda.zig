@@ -27,6 +27,7 @@
 // 5. put content of this file inside src/main.zig
 // 6. run `zig build run`
 const zelda = @import("zelda");
+const std = @import("std");
 
 const T = struct {
     data: u32,
@@ -35,20 +36,7 @@ const T = struct {
     pub usingnamespace zelda.singlyLinkedList(@This(), .next);
 };
 
-pub fn main() !void {
-    var one: T = .{ .data = 1 };
-    var two: T = .{ .data = 2 };
-    var thr: T = .{ .data = 3 };
-    var fou: T = .{ .data = 4 };
-    var fiv: T = .{ .data = 5 };
-
-    var list: T.SinglyLinkedList = .empty;
-    list.prepend(&two); // {2}
-    two.insertAfter(&fiv); // {2, 5}
-    list.prepend(&one); // {1, 2, 5}
-    two.insertAfter(&thr); // {1, 2, 3, 5}
-    thr.insertAfter(&fou); // {1, 2, 3, 4, 5}
-
+fn iterate(list: T.SinglyLinkedList) void {
     var it = list.first;
     var nb_of_nodes: u32 = 0;
     while (it) |node| : (it = node.next) {
@@ -60,4 +48,19 @@ pub fn main() !void {
     std.debug.print("number of nodes: {d}\n", .{nb_of_nodes});
 }
 
-const std = @import("std");
+pub fn main() !void {
+    var list: T.SinglyLinkedList = .empty;
+
+    var one: T = .{ .data = 1 };
+    var two: T = .{ .data = 2 };
+    var thr: T = .{ .data = 3 };
+    var fou: T = .{ .data = 4 };
+    var fiv: T = .{ .data = 5 };
+
+    list.prepend(&two); // {2}
+    two.insertAfter(&fiv); // {2, 5}
+    list.prepend(&one); // {1, 2, 5}
+    two.insertAfter(&thr); // {1, 2, 3, 5}
+    thr.insertAfter(&fou); // {1, 2, 3, 4, 5}
+    iterate(list);
+}
