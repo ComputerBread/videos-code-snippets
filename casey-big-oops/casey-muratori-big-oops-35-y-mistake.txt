@@ -1,0 +1,482 @@
+https://www.youtube.com/watch?v=wo84LFzx5nI
+Casey Muratori – The Big OOPs: Anatomy of a Thirty-five-year Mistake – BSC 2025
+
+- Looking Glass (Influential Game company)
+  Cambridge, Massachusetts (USA)
+  - Ultimate underworld (game) started the 3D revolution & PC gaming
+  - Thief the Dark Project (game/franchise) (1998), first stealth/action game
+  - how they modeled entities:
+    - before: (ultimate underworld 1 & 2)
+      (2min) fat structs, everything in one struct, limited memory, everyone did
+      that because that what worked!
+    - (2m50) then at that time, people started to have a hierarchy of things,
+      class + subclasses
+    -> Looking Glass decided not to go that route, instead (for Thief the dark project)
+      (3m20)"we want all of our systems to be the primary thing that we're going to think about"
+      "we want to put things in terms of their system, not in terms of the entity"
+      they would use an ID for each entity, no data associated with it at all,
+      the way we form the entity's data is by using that ID to look up into a 
+      system and say "what's the physics/combat/fuel/... for this thing"
+      -> They ship the first instance of an actually commercially released
+      Entity Component System (ECS)
+      => (5m) Encapsulation boundaries are the red lines (between systems)
+      => Encapsulation boundaries are what we really care about when we're doing
+      architecture, we care about: where we make it difficult to access things
+      and where we make it easy
+      - they decided to draw the encap. bound. around the systems,
+      this is very different because the traditional OOP model draws the EB around
+      the objects
+      (like an object/class has all the data & method to define its behavior)
+      (while the other model, systems are put together, and an object is represented
+      by an ID, which can pick & choose in these systems)
+      
+🗒️==> [recap] The influential gaming company "Looking Glass" known for "Ultima Underworld"
+considered as one of the first 3D game, ship one if not the first instance of
+an Entity Component System when they released the game "Thief the Dark Project". (98)
+Instead of going with the OOP methods, that creates hierarchies of class, and
+create encapsulation boundaries between objects. They created encapsulation
+boundaries between systems!
+-----------------
+
+- (6min) OOP has gotten into this mindset of: "A compile-time hierarchy that matches the domain model" - Marc "Mahk" LeBlanc
+  - you're thinking about the domain model and you're bringing it into the software world
+  - why are we pushing this?
+    we can still do OOP style stuff, by changing our paradigm of what we're
+    thinking about in terms of our domain model.
+    Don't make the domain model be in the code, make that smth the user experiences,
+    but the code is done in a way that makes sense for the code
+  - Casey's own addition:
+    OOP = "compile-time hierarchy of encapsulation that matches the domain model"
+    - encapsulation is what determines wheter the code is easy or hard to write,
+      are those boundaries in the right place
+
+- (7min) The internet
+we went on the internet, there are "social media", where you can yap, people
+talked about using OOP, it was pushed, and got adopted everywhere, some people
+were arguing that it was bad
+No way all these smart guys are wrong, surely it's based on academic studies or
+smth, someone must have known right?
+can you really say that this is bad => TL;DR: YES !!!
+- the long answer is the rest of this talk:
+The Big OOPs: anatomy of a 35 year mistake, to figure out where we went wrong,
+what happened.
+- not necessarly talking about OOP as a whole, he's talking about very specific
+things in it
+====> !!! he's not saying that OOP was mistake but that
+"compile-time hierarchy of encapsulation that matches the domain model" was a
+mistake <====
+
+----------------------
+🗒️ before this: intro
+🗒️ Casey isn't saying that "OOP as a whole was a mistake but that "compile-time
+hierarchy of encapsulation that matches the domain model" was a mistake.
+This talk is to justify this claim!
+🗒️ after this: the talk
+----------------------
+
+- we have a lot of historical evidence that show that people were pushing the
+"you should look at the domain model and you should code that directly into
+compile hierarchy". (11m48)
+  - ex: (12:07) Bjarne Stroustrup "OOP is programming using inheritance" (1988) (13min)
+- (13:13) alan kay (2003) this is true, but said too late
+	  alan kay (1993) inheritance has turned out to be very difficult for novices to deal with
+	  alan kay (1984) pretty much talking about representing in the hierarchy what your domain model is
+  (16m) Stroustrup (1994) criticize Smalltalk that encourages people to see
+        inheritance as the sole or [...] primary way of organizing programs...
+	  [info: alan kay one of the OOP father, created "Flex" prog lang, considered precursor of smalltalk]
+	  
+^^^^^^^^^^^^^^^^^^^^^
+🗒️ he doesn't want to hear anybody say that nobody pushed this idea, because
+there are too many historical evidence!
+----------------------
+
+(16m30) The origin story of the "entity" hierarchy
+- we'll start with C++, most important language that promulgated this inheritance
+hierarchy concept out to the world
+- Cambridge university, cambridge, england (~1978)
+- Stroustrup was working on distributed systems
+"i was trying to develop a high-lvl architectural support for modularity, for
+having hardware-protected entities talk to each-other",
+he had to write a simulation,
+he learned Simula (by talking with one of its creator),
+he wrote a simulator in Simula, it was a pleasure to write that simulator,
+=> he was working with lot of small programs talking to each other.
+the class concept (of simula) allowed to map his application concepts into the
+language constructs in a direct way
+-> he was working on a model of things that are encapsulated.
+(the computers can't talk to each other, the different processes in the computer
+can't talk to each other) -> it's an exact fit for what a class does
+- type system & ability to catch type errors
+- he didn't like Pascal, type system worse than useless
+- (22m44) "the implementation of simula, however, did not scale in the same way
+and as a result the whole project came close to disaster."
+  -> he tried to run the simula program but he had all sorts of problems,
+     it started even before he tried to run it
+  -> build times were through the roof
+  "link times for separately compiled classes were abysmal"
+  -> "the run-time performance was such that there was no hope of using the 
+      simulator to obtain real data."
+      -> 80% of the time was spent in the garbage collector
+  => he rewrote the simulator in BCPL
+
+- he goes to Bell Labs, he's doing the same sorts of distributed systems analysis
+for Unix (uses C), he would like to do it with smth like Simula, can we have
+C with classes?
+- C with Classes was still thought of primarily as an extension to C for
+expressing modularity and concurrency
+- he's looking at things like virtual mem & protection between processes... and
+that's what he wants for programming
+- "the OS notion of read/write protection grew into C++'s notion of const"
+- In addtion to the modeling part, they're using inheritance for the purpose of
+code reuse. Even if it really doesn't have much to do with anything.
+- everything else after that isn't relevant, are arguments that can't explain why
+C++ exists...
+- there's this idea of virtual function that comes later
+- Bjarne said that classes & inheritance wasn't good for building collections
+(vector, list, queue...), templates fix this problem
+
+^^^^^^^^^^^^^^^
+🗒️ Bjarne Stroustrup was working on embedded systems, he wrote a simulator using
+Simula, he loved the experience, the classes to model his application + type
+systems + catching type errors; but it linking was really slow, and runtime was
+so slow, that there was no hope to obtain real data. 80% of the time was spent
+in the garbage collector even tho there wasn't any garbage!
+That's why he created C with Classes at Bell Labs (original C++ name)
+(he's not a PL guy, he's a lowlevel/hardware guy)
+
+in his talk, casey is trying to convince us that Stroustrup was really thinking
+about encapsulation by thinking about low level/hardware/OS stuff, virtual mem,
+process protection...
+He's trying to trace back where these ideas come from: for C++ it's OS/embedded
+system stuff! Not because OOP works well for big teams or some shit!
+
+=> he wants us to understand all of the things that were being thought about
+with inheritance at the time when it was actually being put into more mainstream
+languages, which are:
+- domain modeling part, direct mapping from domain to classes
+- inheritance as a way for code reuse
+he's not talking about:
+- large teams
+- about architecture
+----------------------
+
+- let's go back to Simula
+  Norwegian Computing Center, Oslo, Norway (1962)
+  Ole-Johan Dahl & Kristen Nygaard
+- operations research: how to optimize process/operations (how to maximize
+mcdonald's employee productivity, idk (I made it up))
+- simula is like a scripting language for system simulation
+- simula 1 had shortcoming
+|-> simula 67
+ - thinking about code reuse
+   (36:23) (partial similarity fairly often -> programming effort could be saved...)
+ - they were thinking in terms of a toll booth on a bridge, with a queue of cars
+ which were either trucks or buses (<= this is what they were trying to solve
+ when they came up with classes) (ex: 37m29)
+   link class car (...)
+   car class truck ...
+   car class bus ...
+- we see both things they're about to do &  that Bjarne also was going to do
+  -> using inheritance for code reuse
+  -> following the domain model with our classes
+
+- virtual function came a bit latter
+  
+^^^^^^^^^^^^^^^
+🗒️ TODO
+
+----------------------
+- what we're seeing, is a sort of an approach to templates that wasn't very good,
+that's not their fault, nobody knew anything at that time!
+maybe they may never have invented this class concept at all, if they had templates
+- we know that they did those things, but where did they get the ideas
+- (42:27) the idea of subclass comes from C. A. R. Hoare (the guy who invented
+quicksort)
+-> Hoare says "In the real world, it is often useful to consider a class of
+object as being split into [...] subclasses"
+  => model the domain/world
+  -> syntax example at 44m32
+-> Hoare also talked about "tagged union" pretty much: (yeah, actually feels like
+stuff I do in zig) "discriminated union"
+"the programmer will usually [...] wish to determine to which of the possible
+subclasses, the record [...] actually belongs. [...] record class discriminator"
+(1966)
+  - sort of a switch statement (46m30)
+  - this adds type safety (he says this in the paper)
+    "variable 'e' may safely be used [..] for private fields of the relevant subclass.
+
+- alright so if the original paper had "discriminated union", where did it go?
+Nygaard actually put it in (simula), it was called INSPECT (47:54)
+  - (1994) Bjarne, "INSPECT .. was .. not introduced into C++. the reason for
+  that is to encourage modularity through the use of virtual functions."
+  He thought it was bad, because it broke modularity, because someone (inspect)
+  from the outside can  tell what class you are.
+  => Casey "we lost out on one of the most important feature I would use in C++
+            every day, because it was removed"
+
+==> not a single part of it, no hint at all that any of this is really about
+compile time hierarchy stuff or about large team or about any of the things
+we talk about today!
+It was literally like: "I might have a record that wants to have a type field,
+and it would be cool if I could switch on the type field and do different things
+based on it (the type)".
+-> we had this idea back in 1966
+we could have had it from day 1, but we don't have it (maybe we have some bad
+discriminated unions) if someone had just believed that this was good!
+
+^^^^^^^^^^^^^^^
+🗒️ TODO
+----------------------
+(50min) BREAK, inermission
+
+let's dig deeper
+- where did Hoare get the idea? what was he working on?
+  - this was really hard to find, didn't find much, but he found:
+    there was this committee that was supposed to update Algol
+  - on this committee there was Douglas T. Ross (picture at 55m38)
+	- (51min) Ross sat on the Algol68 committee with C.A.R. Hoare, where his previous work
+	on a record-like data structure (called a plex) influenced Hoare's own ideas on
+	abstract data types... 
+  - Ross influenced Hoare
+- Alan Kay (inventor of smalltalk) got his ideas from Sketchpad & Simula (54m)
+  - Sketchpad was a drawing program (see "part2" below)
+
+- 1952, MIT Servomechanisms Laboratory (cambridge, Mass.)
+  Douglas T. Ross worked there
+  US department of defense research stuff
+  - developed both hardware & software of computer graphics, developed AED system
+  (Algol Extended for Design), it was the first language with types and complex
+  data structures and that sort of thing!
+  - they were trying to build a system where someone from like the Air Force,
+  could describe a part that they were going to try to manufacture, and the
+  computer would just make it (almost like 3D printing)
+  (they had stuff working)
+  -> this was early, the beginning of computer... 1950s
+- COBOL was the first thing you'd see referenced as having things like 
+record-like structs (1960)
+we take struct for granteed, but that didn't exist, nobody thought about that,
+they have sort of an idea of data records, some fields that comprise a record.
+Nobody is thinking about the program having records that it's using purely for
+computation.
+- what people are actually thinking about is LISP (LISt Processor), published in
+1960 (John McCarthy)
+  - no concepts of record, just sequential bags of stuff
+  - no concepts of structured data
+- (1960) Douglas T. Ross:
+  - (1h)LISP is kinda dumb: list and tree structure are too limited
+    + consumes storage + computer time
+  - he comes up with "a type of generic structure, called a plex"
+    (which is pretty much a struct)
+    - example at 1h3m,
+      it has some: data + pointers + flags+function pointers
+      - flags: what Ross is saying "when we're processing this stuff, we could run one
+      subroutine and just based on what we stick in the plex, we could change how
+      we're processing it. So we set or not flags depending on the path it should
+      take.
+      - TRA 562, TRA 467, are pretty much function pointers -> basically virtual functions
+  - => team fat struct founded in 1960?
+  - ex 2, (1h5m50) modeling points & line, winged edge data structure
+
+the other part of the story
+- (1960) MIT Lincoln Laboratory (Lexington, MA)
+- sketchpad (where Alan Kay got his ideas)
+- Ivan Sutherlan (pic @1h07m08) made sketchpad (largely by himself)
+  first joined Lincoln Lab as an intern for the summer of 1960, then did PhD at MIT
+- TX series computers, were pretty unusual because they had a display (screen)
+  the guy who was architecting them (Wesley Clark) (made in this MIT Lab),
+  integrated a light pen -> TX2 (TX0: first version, TX1: no such thing)
+- this was funded by the air force to understand the behavior of large numbers
+of transistors (that's it, not for computing or someting)
+  => there was available compute time, that Ivan Sutherlan used (at 4am)
+- Ivan Sutherlan convinces Wes Clark to be able to draw on the display
+  (1h10) => sketchpad, can draw lines with the light pen, knows snapping (connecting line to point)
+- Alan kay (87) "Ivan S.'s SketchPad - probably the most significant single thesis
+ever done - remarkable program in many ways, even today".
+- (1963) published thesis, completely new concepts no one's ever thought about
+like the ability to erase a line with ease
+or "to move drawing parts around .. without the need to erase them"
+- Ross & Sutherland worked together
+(1h12m59) "Ross, provided help and advice on n-component elements"
+(Ross is working on CAD, ross told him about plex)
+"in the drawings made by the Sketchpad system, there are large populations of
+relatively few types of entities with very little variation in format between
+entities of each type ... Each entity, therefore, is represented in the computer as
+an n-component element..."
+(1h14m28) diagram of n-component elements (63) Ivan Sutherland
+ which looks a lot like Ross diagram
+- in the original paper (60) Ross talks about Plex, and you find smth similar
+in the 63 paper of Sutherland (1h15m37)
+  - this is how he did things like "I want to go ahead and draw this shape,
+  but I don't want to bother having actual different data types having completely
+  specialized subroutines, so I'll just have a few entries to say how to
+  display it, move it... => virtual functions
+  - there are gaps, "all generic blocks still carry space ... because of historical reasons"
+  SketchPad is on team Fat struct
+  
+- (1h18m) recap of history of where the ideas come from
+  !!! literaly can recap most of what was said using this!
+
+^^^^^^^^^^^^^^^
+🗒️ TODO
+-----------------
+
+--info
+CSG = Constructive Solid Geometry
+est une branche de la modélisation des solides (ou modélisation 3D).
+Cette technique de modélisation géométrique concerne la représentation d'un objet solide comme combinaison d'objets solides simples (exemple : cylindre, sphère, cône, tore, etc.) à l'aide d'opérateurs géométriques booléens (exemple : union, intersection, soustraction).
+--end
+
+- Ok, so why did he research all that instead of saying "who cares about these
+things? I don't use those compile time hierarchies" and post something mean on
+twitter???
+- here's why: back in 97 (Seattle, WA) definitionSIX
+  he's out of highschool, he doesn't know anything and he's asked by Chris Hecker
+  to "make a level editor that does CSG on spheres"
+  (he programmed at ton as a kid, but didn't know much)
+  - he searched for papers about CSG spheres, (CSG = Constructive Solid Geometry)
+    he finds "alpha shapes" (implicit surfaces)
+    it's like spheres but when you move them together, they make this smooth join,
+    so it could be better than CSG
+    - the inside of these things (typically called metaballs)
+      it was gonna be the negative space of the metaball
+      he made a modeler for that he called "Negaman" for "negative metaball"
+      (1h22m54) image of it
+      - it was "selection-based UI"
+      so user would select a bunch of things and then it would
+      show a user interface that would be appropriate for that selection
+      - he wanted the program to have a nice architecture
+        (hard architecture problem)
+        so he tried to do it "cleanly"
+        but ended up with crap (1h25m14)
+        "i've wrote some of the most ridiculous oop stuff you've ever seen"
+        "it was awful, I'm not proud of it"
+        - he has a class inheriting from some templated class
+          + getters + setters + parallel data structure
+          rich hickey functor
+        - (1:28:40) he ended up with something that look like what lookingglass
+        did, but bad
+- 2024, he asked himself "how did Sketchpad do this anyway?
+  sketchpad could do a lot of other stuff than just draw,
+  the hardcore stuff only Sutherland knows how to do (1h30m)
+  - (1h32) if we look at how he represented constraints, he's saying ther's
+  going to be variables that are constrained.
+  - "the ring structure was designed to permit ... rapid constraint satisfaction"
+    "all refs made to a particular n-component element or block are collected
+     together by a string of pointers which originates within that block"
+     
+     a hen is a sentinel of a linked list
+     a chicken is a link in a linked list that points back to the sentinel
+	...
+  - 1h35m56 this is the runtime structure of sketchpad
+    start with a Universe, it has a sentinel (or hen) that has a ring inside of
+    which is "variables", "holders", "constraints" & "topos"
+    ("topos" are lines, circles, pictures=copies of other drawings)
+    => not a compile-time hierarchy
+       but a runtime set of rings
+    - this is kind of the opposite of encapsulation,
+      at any time, any part of the system can go look at anything, almost a
+      complete introspectoin system
+    - if we draw it, it looks like this (1m37m36)
+      => looks like ECS
+
+- Ivan Sutherlan was this 🤏 close of ECS in 1963
+  and nobody noticed, or realized how important that was
+  - they didn't think about the fact that the power of this system is coming
+  from the fact that you can look at these components of things and architect
+  around that instead of architecting around the bag? which who cares?
+  -> this is still OOP thinking but where are the encap. bound.?
+  the virtual functions is the least interesting part of this architecture,
+  yes it's cool, it's Doug T. Ross's idea about Plexes, it's where it come from
+  & was a great idea & we should keep it, BUT it's not the cool part, it's the
+  most trival part of it (of sketchpad)
+  => they focused on the wrong thing -> that's the 35-year mistake, OOPs
+  we have the answer, we could have been so far ahead if we just studied that
+  and figured that out, because it's so much more powerful to think about systems
+  that way, especially the hardest kinds of systems like editors!
+  (MIT Lincoln Lab 63 <---> Looking  Glass (98))
+
+- this quote from Alan Kay (93) breaks his heart
+"another important system done .. was Alan Borning's Thinglab - the first serious
+attempt to go beyond Ivan Sutherland's sketchpad. Alan devised a very nice approach
+for dealing with constraints that did not require the solver to be omniscient
+(or able to solve Fermat's last theorem)."
+Alan Kay read the thesis & paid attention to the constraint solver part, but
+Kay thought that "the solver being omniscient" was a bad thing
+-> the "omniscient part" was the good part
+why do they think it's bad?
+their working background (molecular biology & distributed systems), they're both
+thinking of little tiny cells that communicate back & forth which do not reach
+across into each other's domain to do different things
+ -> but this doens't seem to work when you're thinking about program that work
+ inside one computer with the same core memory that's meant to work togehter,
+ it's too limiting, it's not the right model
+
+C didn't type check function calls at the time Stroustrup was making C w/ classes
+C++ made positive contributions that actually do help you program
+
+- the 35y mistake have consequence
+ if you look for an OOP tuto now (2025), first thing you find is a compile time
+ hierarchy that matches the domain model exactly like we don't want
+- what we can do is get the message that "compi...." are not that good,
+sometimes they work like distributed systems, but a lot of times, they're just
+more work than they're worth
+
+
+
+1h50 Q&A
+- they didn't like the omniscient part, because they were focused on modularity
+- he was programming as a kid without oop, then got exposed to oop, and it was
+harder, then he met with some guys who wouldn't use OOP, and they were successful
+that way
+- important to make the distinction between OOP & "compile-time hierach..."
+the guy who made ECS was still thinking in term of OOP
+- he was focused on figuring out where these ideas came from
+
+- discrimated union (tagged unions) as sort of fomring this mutually exclusive
+branching structure, as opposed to the fat strcut model (one unified type),
+
+2 types of situations I might find myself in:
+1. where the domain model itself is telling me clearly that these things are
+mutually exclusive (=> discriminated union), because I prefer to write code in
+a "verb" oriented way, not an OO way, -> to catch error
+
+2H04M19 deleted scene (how looking glass did it)
+- inside ultima underworld, an enity was a fatty struct overlay (2:04:30)
+  - so you had an entity, and if there were 2 sperate things like (HP or Fuel),
+    they were generally mutually exclusive (meaning an entity can't have both of
+    them), so we put them in the same place.
+    (which mean you were accessing both stuff at the same time, easy to get wrong?)
+  - picture of Mach (2h05m15), guy who did a lot of impl on the dark object system
+    (ultima underworld 2)
+    -> he's the guy who said "compile time hierarchy"
+  - mach had a bug, where you could throw a lantern (fuel), and it would make
+    damages (hp), so he had to check if hp exists for entity E.
+    But the guy at lookingglass (mit graduates) didn't want to do that, but they
+    don't know what else to do.
+  - the did ultima underworld 1 & 2, then system shock
+    they go to an outlinking kind of structure (2:07:30)
+    entity with "shared" field + one link/pointer to extend it
+  - flight unlimited
+    first thing to use C++, they were using new/delete -> trashed out & fragmented memory
+    (flight simulator)
+    they had no fuel, but sometimes you would get an "out of fuel" message, because
+    the memory was too fragmented
+  - Tom Leonard, thief the dark project, came up with the entity component model switch
+    instead of "entity.getHP", we're going to say "hp.getEntity"
+    - they're thinking about
+      "avoid fragmentation", "arbitrary-sized properties", "types at run time",
+      "how fast is the fastest case?"
+
+2h12m14s back to Q&A
+- the domain model might not make sense for the computational version.
+  doesn't need to have a model of thing, but we can have smth that gives the
+  end user the effect of that thing.
+  => 🔥The model inside the computer may have very little to do with the model
+  experienced by the user🔥
+  (which is in direct conflict with what Alan Kay wanted to do)
+- failure to engage with the hardest problems,
+  when you design new things, you should focus on the hardest stuff,
+  it's harder to solve only simple stuff and scale it up to solving hard pb
+- teaching architecture, would be better to focus on more flexible thinking,
+  thinking about drawing the encapsulation boundaries with intent
+
